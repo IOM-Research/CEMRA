@@ -2,7 +2,7 @@ Package: CEMRA
 Title: COVID Exposure Model and Risk Application
 Version: 0.0.0.9000
 Authors@R: 
-    person("Mark", "Cherie", , "mark.cherrie@iom-world.org", role = c("aut", "cre"))
+    person("Mark", "Cherrie", , "mark.cherrie@iom-world.org", role = c("aut", "cre"))
 Description: This application estimates the risk of covid, from droplet
     spray, inhalation and contact, for different scenarios.
 License: What license is it under?

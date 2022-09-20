@@ -1,5 +1,4 @@
 library(compiler)
-library(triangle)
 COVIDinfectioncalculator<-cmpfun(
 COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhigh,distsalivavirusconc,SpeakontoSurf=NA,
                                     Roomheight,RoomairflowNFFF,Roomvolumemin,Roomvolumemax,
@@ -72,7 +71,7 @@ COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhig
   ### Tmax is the duration of the exposure period, minutes (Phan et al. (2019))
   #library(triangle)
    
-  Tmax<-rtriangle(1, a=SuTmaxa, b=SuTmaxb, c=SuTmaxc)
+  Tmax<-triangle::rtriangle(1, a=SuTmaxa, b=SuTmaxb, c=SuTmaxc)
 
   
   ################### EMISSION VARIABLES ########################
@@ -97,7 +96,7 @@ COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhig
   }
   
   # Cough rate
-  Infcoughrateperhour<-rtriangle(1, a=Infcoughrateperhourmin, b=Infcoughrateperhourmax, c=Infcoughrateperhourmode)
+  Infcoughrateperhour<-triangle::rtriangle(1, a=Infcoughrateperhourmin, b=Infcoughrateperhourmax, c=Infcoughrateperhourmode)
   
   # Number of people in FF that are infected
   FFinfected<-Infected-1
@@ -105,7 +104,7 @@ COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhig
   # COUGHrate is the rate of cough, unit is per minute, after dividing by 60
   # multiple by any controls on the coughs
    
-  COUGHrate<-(Infcoughrateperhour/60)*(rtriangle(a=InfCsprayprobmin,b=InfCsprayprobmax, c=InfCsprayprobmode))*InfStageofInfectionvalue
+  COUGHrate<-(Infcoughrateperhour/60)*(triangle::rtriangle(a=InfCsprayprobmin,b=InfCsprayprobmax, c=InfCsprayprobmode))*InfStageofInfectionvalue
   
   # CONCsaliva is the concentration of SARS-CoV-2 (To et al., 2020)
   # unit is log10 infectious copies per mL
@@ -166,7 +165,7 @@ COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhig
   
   # Apply the emission control (e.g. ventilated headboard)
    
-  EairTalkS<-InfEairTalkSQA*rtriangle(n=1, a=InfCexhaleprobmin, b=InfCexhaleprobmax, c=InfCexhaleprobmode)
+  EairTalkS<-InfEairTalkSQA*triangle::rtriangle(n=1, a=InfCexhaleprobmin, b=InfCexhaleprobmax, c=InfCexhaleprobmode)
   
   #Emission per minute from breathing/talking
   EairTalk<-EairTalkS
@@ -176,12 +175,12 @@ COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhig
   # INACTIVair is the inactivation rate SARS-2 (Van Doremanlen, 2020) 
   # units per minute after dividing by 60
    
-  INACTIVair<-rltriangle(n=1, a=INACTIVaira, b=INACTIVairb, c=INACTIVairc)/60
+  INACTIVair<-triangle::rtriangle(n=1, a=INACTIVaira, b=INACTIVairb, c=INACTIVairc)/60
   
   # INACTIVsurface is the invactivation rate of SARS-2 on plastic (Van Doremanlen, 2020)
   # units per minute after dividing by 60
    
-  INACTIVsurface<-rltriangle(n=1, a=INACTIVsurfacea, b=INACTIVsurfaceb, c=INACTIVsurfacec)/60
+  INACTIVsurface<-triangle::rtriangle(n=1, a=INACTIVsurfacea, b=INACTIVsurfaceb, c=INACTIVsurfacec)/60
   
   # INACTIVskin is the inactvation rate of influenza on skin, units per minute
    
@@ -220,19 +219,19 @@ COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhig
   # from Phan et al. (2019), 
   # unit is touch per minute after dividing by 60
    
-  CONTACTsurfaceNF.hand<-rtriangle(n=1, a=CONTACTsurfaceNF.handa, b=CONTACTsurfaceNF.handb, c=CONTACTsurfaceNF.handc)/60
+  CONTACTsurfaceNF.hand<-triangle::rtriangle(n=1, a=CONTACTsurfaceNF.handa, b=CONTACTsurfaceNF.handb, c=CONTACTsurfaceNF.handc)/60
   
   # CONTACTsurfaceFF.hand is the frequency of contact between hands and surfaces in the far-field 
   # from Phan et al. (2019) 
   # unit is touch per minute 
    
-  CONTACTsurfaceFF.hand<-rtriangle(n=1, a=CONTACTsurfaceFF.handa, b=CONTACTsurfaceFF.handb, c=CONTACTsurfaceFF.handc)/60
+  CONTACTsurfaceFF.hand<-triangle::rtriangle(n=1, a=CONTACTsurfaceFF.handa, b=CONTACTsurfaceFF.handb, c=CONTACTsurfaceFF.handc)/60
   
   # CONTACTface.hand is the frequency of contact between hands and facial mucous membranes of worker
   # data is distribution of the number of contacts with mask observed by Phan et al. (2019)
   # divide by duration of exposure to get contact rate
    
-  CONTACTface.hand<-(rnbinom(1, size=CONTACTface.handsize, mu=CONTACTface.handmu)*rtriangle(1, a=SuChandtouchmin, b=SuChandtouchmax, c=SuChandtouchmode))/Tmax
+  CONTACTface.hand<-(rnbinom(1, size=CONTACTface.handsize, mu=CONTACTface.handmu)*triangle::rtriangle(1, a=SuChandtouchmin, b=SuChandtouchmax, c=SuChandtouchmode))/Tmax
   
   # pTARGET is the proportion of particles that deposit on the facial musous membranes which reach receptors in the respiratory tract
    
@@ -327,13 +326,13 @@ COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhig
   Feye<-rep(SuCeyeprob,1)
   # amount of spray material that reaches facial mucous membranes
    
-  Fspray<-rep(rtriangle(1, a=SuCSPRAYprobmin, b=SuCSPRAYprobmax, c=SuCSPRAYprobmode),1)
+  Fspray<-rep(triangle::rtriangle(1, a=SuCSPRAYprobmin, b=SuCSPRAYprobmax, c=SuCSPRAYprobmode),1)
   # amount of airborne material that is inhaled 
    
-  Finhale<-rep(rtriangle(1, a=SuCinhaleprobmin, b=SuCinhaleprobmax, c=SuCinhaleprobmode),1)
+  Finhale<-rep(triangle::rtriangle(1, a=SuCinhaleprobmin, b=SuCinhaleprobmax, c=SuCinhaleprobmode),1)
   # amount of fomite contact dose
    
-  Ffomite<-rep(rtriangle(1, a=SuCfomiteprobmin, b=SuCfomiteprobmax, c=SuCfomiteprobmode),1)
+  Ffomite<-rep(triangle::rtriangle(1, a=SuCfomiteprobmin, b=SuCfomiteprobmax, c=SuCfomiteprobmode),1)
   
   #############################################################################################################################################
   # STAGE 3: SET UP THE MARKOV CHAIN SIMULATION

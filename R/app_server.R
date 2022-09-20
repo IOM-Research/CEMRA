@@ -11,7 +11,8 @@ app_server <- function( input, output, session ) {
  #source("R/COVIDinfectioncalculatorBATCHnumberinfected.R")
  #source("R/COVIDinfectioncalculatorBATCHrelativecontributions.R")
 
-devtools::load_all("R/")
+#devtools::load_all("R/")
+library(CEMRA)
   
 #################### NEEDS UPDATED WITH CURRENT FILES ###############################  
   
@@ -27,16 +28,16 @@ filedata <- reactive({
       infile<-input$file1
       read.csv(infile$datapath)
     } else if(is.null(input$file1) & input$SETTING=="Hospital_singlepatient"){
-      infile<-"data/runs/Hospital/Hospital_singlepatient_moderate_peak.csv"
+      infile<-system.file("extdata", "runs/Hospital/Hospital_singlepatient_moderate_peak.csv", package = "CEMRA")
       read.csv(infile)
     } else if(is.null(input$file1) & input$SETTING=="Hospital_twopatient"){
-      infile<-"data/runs/Hospital/Hospital_twopatient_moderate_peak.csv"
+      infile<-system.file("extdata", "runs/Hospital/Hospital_twopatient_moderate_peak.csv", package = "CEMRA")
       read.csv(infile)
     } else if(is.null(input$file1) & input$SETTING=="Hospital_singlepatienttreatment"){
-      infile<-"data/runs/Hospital/Hospital_singlepatienttreatment_moderate_peak.csv"
+      infile<-system.file("extdata", "runs/Hospital/Hospital_singlepatienttreatment_moderate_peak.csv", package = "CEMRA")
       read.csv(infile)
     } else if(is.null(input$file1) & input$SETTING=="Office_meetings"){
-      infile<-"data/runs/Office/Office_meetings2.csv"
+      infile<-system.file("extdata", "runs/Office/Office_meetings2.csv", package = "CEMRA")
       read.csv(infile)
     }
   })

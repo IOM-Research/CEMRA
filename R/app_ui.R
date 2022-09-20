@@ -6,12 +6,12 @@
 #' @noRd
 #' 
 #' 
-
+ 
 app_ui <- function(request) {
   library(shinycssloaders)
   library(dplyr)
   library(DT)
-  
+  library(CEMRA)
   
   
   tagList(

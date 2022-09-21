@@ -4,6 +4,9 @@ output: html_document
 ---
 <br>
 
+![PROTECTandCSO](modeloverview2.png)
+*Figure 1: Simplified overview of the model*
+
 ##### **Overview**
 
 * CEMRA is a model and web application used to understand the risk of covid-19 infection from multiple routes in indoor settings. The original model was developed in 2020 [(Jones, 2020)](https://www.ncbi.nlm.nih.gov/research/coronavirus/publication/32643585).
@@ -27,8 +30,3 @@ output: html_document
 * Engineering, administrative and Personal Protective equipment controls can be applied, with estimates of efficacy derived from the literature. 
 
 * An overview of the model is presented in Figure 1. A more detailed version is available [here](https://iomworld.box.com/s/lyv3k4u1k7q97yjrfhxabj73hmmjgelx).
-
-
-*Figure 1: Simplified overview of the model*
-
-![PROTECTandCSO](modeloverview2.png)

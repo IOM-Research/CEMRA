@@ -14,18 +14,28 @@ app_ui <- function(request) {
   library(CEMRA)
   
   
+
+  
   tagList(
     # Leave this function for adding external resources
     golem_add_external_resources(),
     # Your application UI logic 
     fluidPage(
       
+      # font
+      tags$head(
+        tags$style(HTML("
+                  @import url('//fonts.googleapis.com/css?family=Roboto+Slab');
+                  "))
+      ),
+      
       # App title ----
       #titlePanel("Covid Exposure Model and Risk App (CEMRA)"),
       headerPanel(
         fluidRow(
           column(11, h1("Covid Exposure Model and Risk App (CEMRA)", 
-                        style = "'font-weight': bold; 'font-size': 39px")),
+                        style = "font-family: 'Roboto Slab', cursive;
+     font-weight: bold; font-size: 39px")),
           column(1, offset=-2, img(height = 100, width = 100, src = "www/iomlogo.png"))
 
         )
@@ -106,7 +116,8 @@ app_ui <- function(request) {
             tabPanel("Parameters", DTOutput("params")),
             tabPanel("Risk of Infection", plotOutput("numberinfectedgraph")%>% withSpinner(color="#428bca"), htmlOutput("infectedtextcomparison")),
             tabPanel("Route of transmission", plotOutput("relcon")%>% withSpinner(color="#428bca"), htmlOutput("infectedrelcontext")),
-            tabPanel("Acknowledgments", includeMarkdown(app_sys("app/www/acknowledgements.Rmd")))
+            tabPanel("Acknowledgments", includeMarkdown(app_sys("app/www/acknowledgements.Rmd"))),
+            tabPanel("Questionnaire", htmlOutput("questionnaire"))
             )
         )
       )

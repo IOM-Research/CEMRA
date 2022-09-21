@@ -1,6 +1,6 @@
 Package: CEMRA
 Title: COVID Exposure Model and Risk Application
-Version: 0.0.0.9000
+Version: 0.0.0.9001
 Authors@R: 
     person("Mark", "Cherrie", , "mark.cherrie@iom-world.org", role = c("aut", "cre"))
 Description: This application estimates the risk of covid, from droplet
@@ -11,6 +11,7 @@ Imports:
     config (>= 0.3.1),
     dplyr (>= 1.0.7),
     DT (>= 0.15),
+    markdown (>= 1.1),
     ggplot2 (>= 3.3.2),
     ggpubr,
     golem (>= 0.3.1),
@@ -20,7 +21,9 @@ Imports:
     shinycssloaders (>= 1.0.0),
     tidyr (>= 1.1.2),
     triangle,
-    waffle (>= 1.0.1)
+    waffle (>= 1.0.1),
+    shinyWidgets(>= 0.7.3),
+    googlesheets4(>= 1.0.1)
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1

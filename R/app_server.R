@@ -480,8 +480,370 @@ output$infectedrelcontext<- renderText({
 
 })
 
+# form
+output$questionnaire=renderUI({ 
+  y<-list(  
+  HTML("<br>"),
+    helpText("Would you be willing to answer some questions below to let us know what your experience of the app was like?")
+)
+    x <- list( 
+    shinyWidgets::sliderTextInput(
+      inputId = "Enjoyable", 
+      label = "", 
+      grid = TRUE, 
+      force_edges = TRUE,
+      choices = c("Annoying",
+                  "2", "3", 
+                  "4","5","6", "Enjoyable"),
+      selected = "4"
+    ),
+    shinyWidgets::sliderTextInput(
+      inputId = "Understandable", 
+      label = "", 
+      grid = TRUE, 
+      force_edges = TRUE,
+      choices = c("Not understandable",
+                  "2", "3", 
+                  "4","5","6", "Understandable"),
+      selected = "4"
+    ),
+    shinyWidgets::sliderTextInput(
+      inputId = "Creative", 
+      label = "", 
+      grid = TRUE, 
+      force_edges = TRUE,
+      choices = c("Creative",
+                  "2", "3", 
+                  "4","5","6", "Dull"),
+      selected = "4"
+    ),
+    shinyWidgets::sliderTextInput(
+      inputId = "Easy", 
+      label = "", 
+      grid = TRUE, 
+      force_edges = TRUE,
+      choices = c("Easy to learn",
+                  "2", "3", 
+                  "4","5","6", "Difficult to learn"),
+      selected = "4"
+    ),
+    shinyWidgets::sliderTextInput(
+      inputId = "Valuable", 
+      label = "", 
+      grid = TRUE, 
+      force_edges = TRUE,
+      choices = c("Valuable",
+                  "2", "3", 
+                  "4","5","6", "Inferior"),
+      selected = "4"
+    ),
+    shinyWidgets::sliderTextInput(
+      inputId = "Boring", 
+      label = "", 
+      grid = TRUE, 
+      force_edges = TRUE,
+      choices = c("Boring",
+                  "2", "3", 
+                  "4","5","6", "Exciting"),
+      selected = "4"
+    ), 
+    shinyWidgets::sliderTextInput(
+      inputId = "Interesting", 
+      label = "", 
+      grid = TRUE, 
+      force_edges = TRUE,
+      choices = c("Not interesting",
+                  "2", "3", 
+                  "4","5","6", "Interesting"),
+      selected = "4"
+    ),
+    shinyWidgets::sliderTextInput(
+      inputId = "Predictable", 
+      label = "", 
+      grid = TRUE, 
+      force_edges = TRUE,
+      choices = c("Unpredictable",
+                  "2", "3", 
+                  "4","5","6", "Predictable"),
+      selected = "4"
+    ),
+    shinyWidgets::sliderTextInput(
+      inputId = "Fast", 
+      label = "", 
+      grid = TRUE, 
+      force_edges = TRUE,
+      choices = c("Fast",
+                  "2", "3", 
+                  "4","5","6", "Slow"),
+      selected = "4"
+    ),
+    shinyWidgets::sliderTextInput(
+      inputId = "Inventive", 
+      label = "", 
+      grid = TRUE, 
+      force_edges = TRUE,
+      choices = c("Inventive",
+                  "2", "3", 
+                  "4","5","6", "Conventional"),
+      selected = "4"
+    ),
+    shinyWidgets::sliderTextInput(
+      inputId = "Obstructive", 
+      label = "", 
+      grid = TRUE, 
+      force_edges = TRUE,
+      choices = c("Obstructive",
+                  "2", "3", 
+                  "4","5","6", "Supportive"),
+      selected = "4"
+    ),
+    shinyWidgets::sliderTextInput(
+      inputId = "Good", 
+      label = "", 
+      grid = TRUE, 
+      force_edges = TRUE,
+      choices = c("Good",
+                  "2", "3", 
+                  "4","5","6", "Bad"),
+      selected = "4"
+    ),
+    shinyWidgets::sliderTextInput(
+      inputId = "Complicated", 
+      label = "", 
+      grid = TRUE, 
+      force_edges = TRUE,
+      choices = c("Complicated",
+                  "2", "3", 
+                  "4","5","6", "Easy"),
+      selected = "4"
+    ),
+    shinyWidgets::sliderTextInput(
+      inputId = "Unlikable", 
+      label = "", 
+      grid = TRUE, 
+      force_edges = TRUE,
+      choices = c("Unlikable",
+                  "2", "3", 
+                  "4","5","6", "Pleasing"),
+      selected = "4"
+    ),
+    shinyWidgets::sliderTextInput(
+      inputId = "Usual", 
+      label = "", 
+      grid = TRUE, 
+      force_edges = TRUE,
+      choices = c("Usual",
+                  "2", "3", 
+                  "4","5","6", "Leading edge"),
+      selected = "4"
+    ),
+    shinyWidgets::sliderTextInput(
+      inputId = "Unpleasant", 
+      label = "", 
+      grid = TRUE, 
+      force_edges = TRUE,
+      choices = c("Unpleasant",
+                  "2", "3", 
+                  "4","5","6", "Pleasant"),
+      selected = "4"
+    ),
+    shinyWidgets::sliderTextInput(
+      inputId = "Secure", 
+      label = "", 
+      grid = TRUE, 
+      force_edges = TRUE,
+      choices = c("Secure",
+                  "2", "3", 
+                  "4","5","6", "Not secure"),
+      selected = "4"
+    ),
+    shinyWidgets::sliderTextInput(
+      inputId = "Motivating", 
+      label = "", 
+      grid = TRUE, 
+      force_edges = TRUE,
+      choices = c("Motivating",
+                  "2", "3", 
+                  "4","5","6", "Not motivating"),
+      selected = "4"
+    ),
+    shinyWidgets::sliderTextInput(
+      inputId = "Expectations", 
+      label = "", 
+      grid = TRUE, 
+      force_edges = TRUE,
+      choices = c("Meets expectations",
+                  "2", "3", 
+                  "4","5","6", "Does not meet expectations"),
+      selected = "4"
+    ),
+    shinyWidgets::sliderTextInput(
+      inputId = "Efficient", 
+      label = "", 
+      grid = TRUE, 
+      force_edges = TRUE,
+      choices = c("Inefficient",
+                  "2", "3", 
+                  "4","5","6", "Efficient"),
+      selected = "4"
+    ),
+    shinyWidgets::sliderTextInput(
+      inputId = "Clear", 
+      label = "", 
+      grid = TRUE, 
+      force_edges = TRUE,
+      choices = c("Clear",
+                  "2", "3", 
+                  "4","5","6", "Confusing"),
+      selected = "4"
+    ),
+    shinyWidgets::sliderTextInput(
+      inputId = "Impractical", 
+      label = "", 
+      grid = TRUE, 
+      force_edges = TRUE,
+      choices = c("Impractical",
+                  "2", "3", 
+                  "4","5","6", "Practical"),
+      selected = "4"
+    ),
+    shinyWidgets::sliderTextInput(
+      inputId = "Organised", 
+      label = "", 
+      grid = TRUE, 
+      force_edges = TRUE,
+      choices = c("Organised",
+                  "2", "3", 
+                  "4","5","6", "Cluttered"),
+      selected = "4"
+    ),
+    shinyWidgets::sliderTextInput(
+      inputId = "Attractive", 
+      label = "", 
+      grid = TRUE, 
+      force_edges = TRUE,
+      choices = c("Attractive",
+                  "2", "3", 
+                  "4","5","6", "Unattractive"),
+      selected = "4"
+    ),
+    shinyWidgets::sliderTextInput(
+      inputId = "Friendly", 
+      label = "", 
+      grid = TRUE, 
+      force_edges = TRUE,
+      choices = c("Friendly",
+                  "2", "3", 
+                  "4","5","6", "Unfriendly"),
+      selected = "4"
+    ),
+    shinyWidgets::sliderTextInput(
+      inputId = "Conservative", 
+      label = "", 
+      grid = TRUE, 
+      force_edges = TRUE,
+      choices = c("Conservative",
+                  "2", "3", 
+                  "4","5","6", "Innovative"),
+      selected = "4"
+    ),
+    textInput("Textfeed", "Any additional feedback?", value = "", width = NULL, placeholder = NULL),
+    actionButton("submit", "Submit", class = "btn-primary"))
+  
+  fluidRow(
+    y,
+    lapply(
+      X = split(x, f = rep(c(1, 2), length.out = length(x))),
+      FUN = column, width = 6
+    )
+  ) 
+  
+  
+  
+  })
+  
+observeEvent(input$submit, {
+  
+  
+  rv <- reactiveValues(
+    df = data.frame(
+      Datetime = as.Date(character()),
+      Q1 = character(),
+      Q2 = character(),
+      Q3 = character(),
+      Q4 = character(),
+      Q5 = character(),
+      Q6 = character(),
+      Q7 = character(),
+      Q8 = character(),
+      Q9 = character(),
+      Q10 = character(),
+      Q11 = character(),
+      Q12 = character(),
+      Q13 = character(),
+      Q14 = character(),
+      Q15 = character(),
+      Q16 = character(),
+      Q17 = character(),
+      Q18 = character(),
+      Q19 = character(),
+      Q20 = character(),
+      Q21 = character(),
+      Q22 = character(),
+      Q23 = character(),
+      Q24 = character(),
+      Q25 = character(),
+      Q26 = character(),
+      Text = character()
+      
+     
+    )
+  )
 
+    
+  df <- rbind(rv$df, data.frame(Datetime = Sys.time(),
+                                Q1 = input$Enjoyable, 
+                                Q2 = input$Understandable,
+                                Q3 = input$Creative, 
+                                Q4 = input$Easy,
+                                Q5 = input$Valuable, 
+                                Q6 = input$Boring,
+                                Q7 = input$Interesting, 
+                                Q8 = input$Predictable,
+                                Q9 = input$Fast, 
+                                Q10 = input$Inventive,
+                                Q11 = input$Obstructive, 
+                                Q12 = input$Good,
+                                Q13 = input$Complicated, 
+                                Q14 = input$Unlikable,
+                                Q15 = input$Usual,
+                               
+                                Q16 = input$Unpleasant,
+                                Q17 = input$Secure, 
+                                Q18 = input$Motivating,
+                                Q19 = input$Expectations, 
+                                Q20 = input$Efficient,
+                                Q21 = input$Clear, 
+                                Q22 = input$Impractical,
+                                Q23 = input$Organised, 
+                                Q24 = input$Attractive,
+                                Q25 = input$Friendly, 
+                                Q26 = input$Conservative,
+                                Text= input$Textfeed
+                          )
+              )
+
+  library(googlesheets4)
+  gs4_auth(cache = ".secrets", email = "mark.cherrie.mc@gmail.com")
+  ss <- gs4_get("https://docs.google.com/spreadsheets/d/1CPCRng6YaJNI-p4JSIlnF8Uq6M57Si7RgiwRvzIQnkY/edit?usp=sharing")
+  sheet_append(ss, df)
   
-  
+  shinyWidgets::show_alert(
+    title = "Submitted",
+    text = "Thank you! The information supplied will be used to improve the app",
+    type = "submit"
+  )
+})
+
   
 }

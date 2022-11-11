@@ -1,0 +1,123 @@
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(ggpubr)
+
+donotruninapp3<-function(x){
+  
+numberinfectedgraph<-function(output, infectiousness, type){
+    
+    output<-output[(grepl(infectiousness, output$ID)),]
+    
+    output$ID<-gsub('(.*)_\\w+', '\\1', output$ID)
+    output$ID<-gsub('CEMRA_', '', output$ID)
+    output$ID<-gsub('ADM_', '', output$ID)
+    output$ID<-gsub('BASELINE_', '', output$ID)
+    output$ID<-gsub('ENG_', '', output$ID)
+    output$ID<-gsub('PPE_', '', output$ID)
+    
+    output$ID[output$ID=="noint"]<-"No Intervention"
+    output$ID[output$ID=="surgicalmask"]<-"Surgical Mask"
+    output$ID[output$ID=="surgicalmask_surfacedis"]<-"Surgical mask + Surface disinfection"
+    output$ID[output$ID=="surgicalmask_surfacedishandhygiene"]<-"Surgical mask + Surface disinfection + Hand hygiene"
+    output$ID[output$ID=="surgicalmask_freshair"]<-"Surgical Mask + Natural ventilation"
+    output$ID[output$ID=="surgicalmask_UVC_bcs"]<-"Surgical Mask + UVC air purification (best efficacy)"
+    output$ID[output$ID=="surgicalmask_UVC_irl"]<-"Surgical Mask + UVC air purification (sub-optimal efficacy)"
+    output$ID[output$ID=="surgicalmask_VentHead"]<-"Surgical Mask + Ventilated Headboard"
+    
+    output$ID<-factor(output$ID, levels=c("No Intervention",
+                                          "Surgical Mask",
+                                          "Surgical mask + Surface disinfection",
+                                          "Surgical mask + Surface disinfection + Hand hygiene",
+                                          "Surgical Mask + Natural ventilation",
+                                          "Surgical Mask + UVC air purification (best efficacy)",
+                                          "Surgical Mask + UVC air purification (sub-optimal efficacy)",
+                                          "Surgical Mask + Ventilated Headboard",
+                                          "FFP2",
+                                          "FFP3",
+                                          "Airhood"))
+    
+    if(type=="loginfrisk"){
+      
+      ##### Output 1: Log infection risk 
+      output %>% 
+        group_by(ID) %>%
+        select(ID, rFACE, rLUNGNF, rLUNGFF, rSPRAY) %>%
+        mutate_at(., c("rFACE", "rLUNGNF", "rLUNGFF", "rSPRAY"), ~as.numeric(.))%>%
+        pivot_longer(!ID, names_to="cat", values_to="value") %>%
+        mutate(cat=factor(cat, levels=c("rFACE","rLUNGNF","rLUNGFF","rSPRAY"))) %>%
+        mutate(value=log(value))%>%
+        ggplot(., aes(x=cat, y=value, colour=ID)) + 
+        geom_boxplot()+
+        xlab("Route")+
+        ylab("Log Infection")+ scale_x_discrete(labels=c("rFACE" = "Contact", "rLUNGNF" = "Inhalation Near Field",
+                                                         "rLUNGFF" = "Inhalation Far Field",
+                                                         "rSPRAY" = "Cough Spray")) + 
+        theme(axis.text.x=element_text(angle=15, hjust=1),
+              text = element_text(size = 18),
+              legend.position = "none")+
+        scale_colour_grey()
+    } else if(type=="percentagedecrease"){
+      
+      test<-output %>% 
+        group_by(ID) %>%
+        select(ID, rOVERALL) %>%
+        mutate_at(., c("rOVERALL"), ~as.numeric(.))%>%
+        summarise(medianval=median(rOVERALL))
+      
+      baseline<-test[1,2]
+      
+      test <-test %>%
+        mutate(percentagechange=round(medianval/as.numeric(baseline)*100))
+      
+    }else if(type=="predictedairconc"){
+      test<-output %>% 
+        filter(ID=="No Intervention")
+      test
+    }
+  }
+  
+g<-numberinfectedgraph(output, "extremelylow", "predictedairconc")
+h<-numberinfectedgraph(output, "verylow", "predictedairconc")
+i<-numberinfectedgraph(output, "low", "predictedairconc")
+j<-numberinfectedgraph(output, "average", "predictedairconc")
+k<-numberinfectedgraph(output, "high", "predictedairconc")
+l<-numberinfectedgraph(output, "veryhigh", "predictedairconc")
+m<-numberinfectedgraph(output, "extremelyhigh", "predictedairconc")
+
+g$ID<-"Extremely Low"
+h$ID<-"Very Low"
+i$ID<-"Low"
+j$ID<-"Moderate"
+k$ID<-"High"
+l$ID<-"Very High"
+m$ID<-"Extremely High"
+
+gh<-rbind(g,h)
+ghi<-rbind(gh,i)
+ghij<-rbind(ghi,j)
+ghijk<-rbind(ghij, k)
+ghijkl<-rbind(ghijk, l)
+ghijklm<-rbind(ghijkl, m)
+
+ghijklm$ID<-factor(ghijklm$ID, levels=c("Extremely Low",
+                                        "Very Low",
+                                        "Low",
+                                        "Moderate",
+                                        "High",
+                                        "Very High",
+                                        "Extremely High"))
+
+ghijklm %>%
+  mutate(loggenecopies=log(Nair))%>%
+  ggplot(., aes(x=ID, y=loggenecopies)) + 
+  geom_boxplot()+
+  xlab("Infectiousness profile")+
+  ylab("Log Gene copies per m3")+
+  geom_hline(yintercept=log(0.014),linetype=2)+
+  annotate("rect", xmin=-Inf, xmax=Inf, ymin=log(0.0034), ymax=log(0.047), alpha=0.4, fill="grey")+
+  theme(axis.text.x=element_text(angle=15, hjust=1),
+        text = element_text(size = 18),
+        legend.position = "none")+
+  scale_colour_grey()
+}

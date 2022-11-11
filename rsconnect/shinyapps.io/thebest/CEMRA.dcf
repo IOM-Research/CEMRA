@@ -5,8 +5,8 @@ account: thebest
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 3325009
-bundleId: 6321447
+bundleId: 6323511
 url: https://thebest.shinyapps.io/CEMRA/
-when: 1663707544.94854
+when: 1663760756.93376
 asMultiple: FALSE
 asStatic: FALSE

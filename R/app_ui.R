@@ -108,6 +108,7 @@ app_ui <- function(request) {
         ),
         mainPanel(
           tabsetPanel(
+            tabPanel("About", includeMarkdown(app_sys("app/www/About.Rmd"))),
             tabPanel("Model & App", includeMarkdown(app_sys("app/www/info.Rmd"))),
             tabPanel("Preloaded Setting",  includeMarkdown(app_sys("app/www/preloadedscenarios.Rmd"))),
             #tabPanel("Viral load and shedding", includeHTML("data/docs/infectiousness.html")),
@@ -117,7 +118,8 @@ app_ui <- function(request) {
             tabPanel("Risk of Infection", plotOutput("numberinfectedgraph")%>% withSpinner(color="#428bca"), htmlOutput("infectedtextcomparison")),
             tabPanel("Route of transmission", plotOutput("relcon")%>% withSpinner(color="#428bca"), htmlOutput("infectedrelcontext")),
             tabPanel("Acknowledgments", includeMarkdown(app_sys("app/www/acknowledgements.Rmd"))),
-            tabPanel("Questionnaire", htmlOutput("questionnaire"))
+            tabPanel("Questionnaire", htmlOutput("questionnaire"),
+                     )
             )
         )
       )

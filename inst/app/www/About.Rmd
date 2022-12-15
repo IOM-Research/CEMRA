@@ -1,0 +1,20 @@
+---
+title: "Information"
+output: html_document
+---
+
+* IOM developed a quantitative microbial risk assessment (QMRA)-based app during the PROTECT project
+
+* A QMRA is a model that takes the best estimates of characteristics of a working location and the behaviour of the people in it to understand how viruses 'move' within a room. 
+
+* We are interested in how much of the virus ends up in peoples lungs and how much of it contacts their mouth and eyes
+
+* We can then simulate what would happen if we make a change to the room or the behaviour of people. For example we might ask what happens when we open a window and allow fresh air to enter the room. 
+
+* The app allows the user to understand the impact of a combination of control measures (i.e. PPE AND hand/surface cleaning AND a UV air cleaner) and how they can affect routes of transmission (i.e. through air, surfaces and close contact) differently - this is more reflective of the real world experience.
+
+* We've made this app with pre-loaded scenarios so that members of the infection control or occupational health workforce can get a sense of how changing work protocols could lower the risk of transmission. 
+
+* More workplace-specific scenarios can be developed in collaboration with the IOM
+
+* The underlying model and app is open to development for scientists and developers and can be found on the IOM github page

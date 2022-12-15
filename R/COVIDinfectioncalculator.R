@@ -1,5 +1,7 @@
+# compiler to speed up code
 library(compiler)
 COVIDinfectioncalculator<-cmpfun(
+# The function to compute infection risk and route of transmission
 COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhigh,distsalivavirusconc,SpeakontoSurf=NA,
                                     Roomheight,RoomairflowNFFF,Roomvolumemin,Roomvolumemax,
                                     RoomACHmin,RoomACHmax,Roomwindowsopen, 
@@ -27,32 +29,25 @@ COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhig
   ################### DEFINE Room VARIABLES ########################
   
   # room volume, m^3
-   
   V<-runif(1, min=Roomvolumemin, max=Roomvolumemax)
+  # W is the the width of the room
   W<-sqrt(V/Roomheight)
-
-  # 1m is the distance; 3.7*2.4*3
+  # 1m is the NF distance; 3.7*2.4*3
   Vn<-RoomNFw*RoomNFh*RoomNFd
+  # what is the percentage of the NF to the rest of the room?
   NFsizeperc=Vn/V
-  
-  # betaNF
+  # Create the betaNF variable
   betaNF<-NFsizeperc*Roomheight*W*RoomairflowNFFF
-  
   # Air changes per hour
-   
   ACH<-runif(1, min=RoomACHmin, max=RoomACHmax)
-  
   # if windows open; recalculate the ACH rule of thumb equation from p40 here: https://www.who.int/water_sanitation_health/publications/natural_ventilation.pdf
   if(Roomwindowsopen=="Y"){
-   
   ACH<-(0.65*(runif(1, Roomwindspeedmin, Roomwindspeedmax)*(RoomsoaW*RoomsoaH*RoomsoaP)*3600))/V
   } else{
   ACH<-ACH
   }
-  
-  # if UVC unit it the room
+  # if UVC unit it the room then recalculate the ACH based on manufacturers specifications
   if(RoomUVCpurificationinroom=="Y"){
-     
     ACH<-ACH+((RoomUVCmaxflowrate/V)*runif(1,RoomUVCeffmin, RoomUVCeffmax))
   } else{
     ACH<-ACH
@@ -62,21 +57,20 @@ COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhig
   
   # pSPRAY is the probability that the worker intercepts a droplet spray event
   pSPRAY<-rep(SuSPRAYprob,1)
-  
   # Time spent in FF (in 10th of percentage)
   values<-seq(SuFFtimemin, SuFFtimemax, by=10)
-   
+  # Randomly use one of the values for time spend in the FF
   FFtime<-sample(values, 1)
   
   ### Tmax is the duration of the exposure period, minutes (Phan et al. (2019))
-  #library(triangle)
-   
+  #library(triangle) 
   Tmax<-triangle::rtriangle(1, a=SuTmaxa, b=SuTmaxb, c=SuTmaxc)
 
-  
   ################### EMISSION VARIABLES ########################
    
-  # Stage of Infection
+  # Stage of Infection - here we are getting a weighting that will be applied to the emission variables
+  # This is based on the Human Challenge Study data on the 'decay' in viral load over time from the PROTECT project
+  # The stages correspond to time periods and then we've applied a distribution to possible values within that range
   if(InfStageofInfection=="Pre-peak"){
     InfStageofInfectionvalue<-rlogis(1, 0.62, 0.16)
     InfStageofInfectionvalue<-ifelse(InfStageofInfectionvalue>1, 1,InfStageofInfectionvalue)
@@ -102,32 +96,29 @@ COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhig
   FFinfected<-Infected-1
   
   # COUGHrate is the rate of cough, unit is per minute, after dividing by 60
-  # multiple by any controls on the coughs
-   
+  # multiple by any controls on the coughs (i.e. mask)
   COUGHrate<-(Infcoughrateperhour/60)*(triangle::rtriangle(a=InfCsprayprobmin,b=InfCsprayprobmax, c=InfCsprayprobmode))*InfStageofInfectionvalue
   
-  # CONCsaliva is the concentration of SARS-CoV-2 (To et al., 2020)
+  # CONCsaliva is the concentration of SARS-CoV-2 in saliva
   # unit is log10 infectious copies per mL
   # take to the power 10 to make units infectious virus per mL
+  # there are two ways to get this variable either from the Chen or Iwasaki study
   if(Infsalivastudy=="Chen"){
-     
   CONCsaliva<-(10^rweibull(1, shape=InfsalivaChenshape, scale=InfsalivaChenscale))
   CONCsaliva<-CONCsaliva*InfStageofInfectionvalue
-  
   } else if(Infsalivastudy=="Iwasaki"){
-     
   CONCsaliva<-(10^runif(1, min=InfsalivaIwasakimin, max=InfsalivaIwasakimax))
-  
   }
-  # the number of coughs during the exposure event
+  # The number of coughs during the exposure event
   Ncough<-round(Tmax*COUGHrate)
-  
-  # adjust gene copies (unit of emission) to PFU (unit of dose-response)
-   
+  # Adjust gene copies (unit of emission) to PFU (unit of dose-response)
   gf<-runif(1, gflow, gfhigh)	
   
-  # Apply behaviour modification factor
-  #	See Buonnano et al. (2020a, b); assume the patient is resting-speaking
+  # We've assumed a constant virus emission rate, but that's not going to happen if the person is doing something other than resting-speaking
+  # So we apply a behaviour modification factor which increases or decreases the emission rate based on behaviour
+  # e.g. resting-breathing is 20% of the emission rate of resting-speaking
+  # e.g. heavyexercise-speakingloudly is 43 times the emission rate of resting-speaking
+  #	Based on figures from Buonnano et al. (2020a, b)
   
   if(Infactivity=="resting-breathing"){
     quantaexhalationrate=2/9.4
@@ -158,15 +149,13 @@ COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhig
   }
   
   # Virus emitted gene copies per minute with breathing/talking (distribution based on leung, Zhou and Ma)
-   
   InfEairTalkS<-rlnorm(1, meanlog=InfEairTalkSmean, sdlog=InfEairTalkSsd)
+  # This is where we apply the behaviour modification factor
   InfEairTalkSQA<-InfEairTalkS*quantaexhalationrate
+  # This is where we apply the infection stage weighting
   InfEairTalkSQA<-InfEairTalkS*InfStageofInfectionvalue
-  
-  # Apply the emission control (e.g. ventilated headboard)
-   
+  # Apply the emission rate control (e.g. ventilated headboard)
   EairTalkS<-InfEairTalkSQA*triangle::rtriangle(n=1, a=InfCexhaleprobmin, b=InfCexhaleprobmax, c=InfCexhaleprobmode)
-  
   #Emission per minute from breathing/talking
   EairTalk<-EairTalkS
 
@@ -174,16 +163,11 @@ COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhig
   
   # INACTIVair is the inactivation rate SARS-2 (Van Doremanlen, 2020) 
   # units per minute after dividing by 60
-   
   INACTIVair<-triangle::rtriangle(n=1, a=INACTIVaira, b=INACTIVairb, c=INACTIVairc)/60
-  
   # INACTIVsurface is the invactivation rate of SARS-2 on plastic (Van Doremanlen, 2020)
   # units per minute after dividing by 60
-   
   INACTIVsurface<-triangle::rtriangle(n=1, a=INACTIVsurfacea, b=INACTIVsurfaceb, c=INACTIVsurfacec)/60
-  
   # INACTIVskin is the inactvation rate of influenza on skin, units per minute
-   
   INACTIVskin<-rnorm(1,mean=INACTIVskinmean, sd=INACTIVskinsd)/60
   # ensure the the normal distribution always returns a positive value
   while (length(INACTIVskin[INACTIVskin<=0])>=1){
@@ -195,15 +179,12 @@ COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhig
   
   # Calculate the susceptible surface area of eyes and face
   Aportals<-Suface+Sueye
-  
   # TRANSsurface.skin is the effectiveness of transfer between  substrates and skin
   # unit is proportion (0,1]
-   
   TRANSsurface.skin<-rweibull(1,TRANSsurface.skinshape, TRANSsurface.skinscale)
   # ensure that Webiull distribution returns a valuein the range of (0,1]
   while (length(TRANSsurface.skin[TRANSsurface.skin>1])>=1){
     n<-length(TRANSsurface.skin[TRANSsurface.skin>1])
-     
     TRANSsurface.skin[TRANSsurface.skin>1]<-rweibull(n,TRANSsurface.skinshape, TRANSsurface.skinscale)
   }
   
@@ -218,27 +199,21 @@ COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhig
   # CONTACTsurfaceNF.hand is the frequency of contact between hands and surfaces in the near-field 
   # from Phan et al. (2019), 
   # unit is touch per minute after dividing by 60
-   
   CONTACTsurfaceNF.hand<-triangle::rtriangle(n=1, a=CONTACTsurfaceNF.handa, b=CONTACTsurfaceNF.handb, c=CONTACTsurfaceNF.handc)/60
-  
   # CONTACTsurfaceFF.hand is the frequency of contact between hands and surfaces in the far-field 
   # from Phan et al. (2019) 
   # unit is touch per minute 
-   
   CONTACTsurfaceFF.hand<-triangle::rtriangle(n=1, a=CONTACTsurfaceFF.handa, b=CONTACTsurfaceFF.handb, c=CONTACTsurfaceFF.handc)/60
-  
   # CONTACTface.hand is the frequency of contact between hands and facial mucous membranes of worker
   # data is distribution of the number of contacts with mask observed by Phan et al. (2019)
   # divide by duration of exposure to get contact rate
-   
   CONTACTface.hand<-(rnbinom(1, size=CONTACTface.handsize, mu=CONTACTface.handmu)*triangle::rtriangle(1, a=SuChandtouchmin, b=SuChandtouchmax, c=SuChandtouchmode))/Tmax
-  
   # pTARGET is the proportion of particles that deposit on the facial musous membranes which reach receptors in the respiratory tract
-   
   pTARGET<-runif(1,min=SuTARGETmin, max=SuTARGETmax)
   
   ################### SIZE AND COUNT DISTRIBUTION OF PARTICLES, BASED ON CHAO (2009) VARIABLES ########################
   
+  # create the matrix that will hold the speaking data
   ChaoSpeak<-matrix(0, nrow=16, ncol=7)
   #column 1 is the lower end of the size range at 10 mm, Table 1
   # column 2 is the upper end of the size range at 10 mm, Table 1
@@ -265,17 +240,17 @@ COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhig
   ChaoSpeak[16,1:4]<-c(1000,2000, 0, 0)
   ChaoSpeak[,5]<-((4/3)*pi*(ChaoSpeak[,2]/2)^3+(4/3)*pi*(ChaoSpeak[,1]/2)^3)/2
   ChaoSpeak[1:15,6]<-ChaoSpeak[1:15,4]/ChaoSpeak[1:15,3]
+  # here we are changing the study in which we derive the data on the distribution of the number of particles!
   if(ExtraExpVolStudy=="Duguid"){
     ChaoSpeak[,7]<-c(3, 50, 17, 9, 6, 3, 3, 3, 2,3,3,3,3,3,1,0)
   } else if (ExtraExpVolStudy=="LoudenandRoberts"){
     ChaoSpeak[,7]<-c(191,2972,1018,534,353,181,191,201,141,191,181,191,161,151,60,0)
    }else if(ExtraExpVolStudy=="Zhu"){
     ChaoSpeak[,7]<-c(3, 50, 17, 9, 6, 3, 3, 3, 2,3,3,3,3,3,1,0)
-  # N/a so using Duguid 
+  # Makes quite a difference between Duguid/Zhu compared with Louden and Roberts
   }
   
-#################
-  
+  # create the matrix that will hold the coughing data
   ChaoCough<-matrix(0, nrow=16, ncol=7)
   #column 1 is the lower end of the size range at 10 mm, Table 1
   # column 2 is the upper end of the size range at 10 mm, Table 1
@@ -305,12 +280,12 @@ COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhig
   if(ExtraExpVolStudy=="Duguid"){
   ChaoCough[,7]<-c(76, 1041, 386, 127, 47, 45, 38, 38, 27,32,30,83,47,40,27,0)
   } else if (ExtraExpVolStudy=="LoudenandRoberts"){
-  ChaoCough[,7]<-c(39, 542,  201, 66,  25, 24, 20, 20, 14, 17,16,43,25,21,14,0)
+  ChaoCough[,7]<-c(39, 542, 201, 66,  25, 24, 20, 20, 14, 17,16,43,25,21,14,0)
   } else if(ExtraExpVolStudy=="Zhu"){
-  ChaoCough[,7]<-c(67,924,   343, 113, 42, 40, 34, 34, 24, 29,27,74,42,35,24,0)
+  ChaoCough[,7]<-c(67,924, 343, 113, 42, 40, 34, 34, 24, 29,27,74,42,35,24,0)
+  # Makes quite a difference between Duguid compared with Louden and Roberts/Zhu
   }
-  
-  #distribution of virus concentration across the 16 size bins   
+  # Distribution of virus concentration across the 16 size bins   
   # 1 = same concentration in all bins, equal to concentration in the saliva
   if(distsalivavirusconc=="equal"){
   Dist.saliva<-rep(1,16)
@@ -325,13 +300,10 @@ COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhig
   # amount of virus that reaches the eyes
   Feye<-rep(SuCeyeprob,1)
   # amount of spray material that reaches facial mucous membranes
-   
   Fspray<-rep(triangle::rtriangle(1, a=SuCSPRAYprobmin, b=SuCSPRAYprobmax, c=SuCSPRAYprobmode),1)
   # amount of airborne material that is inhaled 
-   
   Finhale<-rep(triangle::rtriangle(1, a=SuCinhaleprobmin, b=SuCinhaleprobmax, c=SuCinhaleprobmode),1)
   # amount of fomite contact dose
-   
   Ffomite<-rep(triangle::rtriangle(1, a=SuCfomiteprobmin, b=SuCfomiteprobmax, c=SuCfomiteprobmode),1)
   
   #############################################################################################################################################
@@ -554,10 +526,7 @@ COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhig
   }
   # speaking emission rate to air and surfaces (pathogens/minute)
   EsurfSpeak<-(sum(sum(n.paths.speak.particle[4:16,]))/(Tmax*Infnonsilenttime)*quantaexhalationrate)
-  
-  
   # Pathogens in BREATHING/TALKING particles
-
   #continuous emission into air and surfaces in near field (PFU per min)
   rateEair<-(EairCough+EairTalk)/gf
   if(SpeakontoSurf=="Y"){
@@ -646,11 +615,10 @@ COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhig
     choice<-sample(c(1,1,1,1,1,1,1,1,1,1),Tmax/dt, replace=TRUE)
   }
   
-########################################### VECTORISE? ############################################
+########################################### SIMULATE MARKOV CHAIN ############################################
+# note, this is the bit that is slow 
 
-# now simulate the Markov chain 
   Ptemp<-P
-  
   # create boolean for choice
   condition<-as.logical(choice)
   
@@ -676,10 +644,9 @@ COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhig
    
    #parallel::stopCluster(cl)
    
-####################################################################################################
+#################################### TRACKING HOW MUCH VIRUS ENDS UP WHERE ########################################
   
   nsteps<-length(trackP[,1])
-  
   # total dose to the lung is from emission at each time step into near-field air, and surfaces
   # plus dose resulting from initial conditions in each of these three zones
   doseLUNGi<-sum(trackP[,1]*rateEair*dt)+
@@ -699,7 +666,6 @@ COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhig
   doseLUNGi2<-sum(trackFF[,1]*rateEair2*dt)+trackFF[nsteps,1]*Nair2
   doseLUNGFFi2<-sum(trackFF[,4]*rateEair2*dt)+trackFF[nsteps,4]*Nair2
   doseFACEi2<-sum(trackFF[,2]*rateEair2*dt)+sum(trackFF[,3]*rateEsurface2*dt)+trackFF[nsteps,2]*Nair2+trackFF[nsteps,3]*Nsurface	
-  
   # combine the dose recieved in the near field and the far field
   doseLUNGi<-doseLUNGi+doseLUNGi2
   doseLUNGFFi<-doseLUNGFFi + doseLUNGFFi2
@@ -729,7 +695,6 @@ COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhig
   probthin <- Aportals/(3.8*10^3)   
   #fraction of the cone volume that is inhaled (0.0005 m^3 per breath, 0.079 m^3 cone volume)
   probinsp <- 0.0005/(0.079)   
-  
   if(Ncough>0){
     doseS <-matrix(0, nrow=16, ncol=Ncough)
     doseI <-matrix(0, nrow=16, ncol=Ncough)
@@ -781,10 +746,8 @@ COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhig
   
   # calculate the unconditional probability (conditional multiplied by probability of HCW intercepting cough)
   UNCONDPROBINFSPRAY <- pSPRAY*CONDPROBINFSPRAY
-  
   rSPRAY <- 1 - ((1 - UNCONDPROBINFSPRAY)^Ncough)
-  
-  
+  # Make sure if there is no coughs then there is no cough spray risk
   if(Ncough==0){
     doseSPRAY<-0
     rSPRAY<-0
@@ -794,7 +757,7 @@ COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhig
   # STAGE 11: COMPUTE OVERALLL INFECTION RISK AND GENERATE OUTPUTS
   #############################################################################################################################################
   
-  #COMPUTED USING INCLUSION-EXCLUSION FORMULA
+  # COMPUTED USING INCLUSION-EXCLUSION FORMULA
   rOVERALL<-
     rFACE+rLUNGNF+rLUNGFF+rSPRAY-
     rFACE*rLUNGNF+rFACE*rLUNGFF+rFACE*rSPRAY+rLUNGNF*rLUNGFF+rLUNGNF*rSPRAY+rLUNGFF*rSPRAY+

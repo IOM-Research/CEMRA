@@ -675,6 +675,8 @@ COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhig
   doseLUNGFF<-doseLUNGFFi*Finhale
   # apply the effect of fomite cleaning
   doseFACE<-Ffomite*doseFACEi*(Fspray*pTARGET*(Suface/Aportals)+Feye*pTARGET*(Sueye/Aportals))
+  doseSPRAYi<-Ffomite*doseSPRAYi*(Fspray*pTARGET*(Suface/Aportals)+Feye*pTARGET*(Sueye/Aportals))
+  
   
   #############################################################################################################################################
   # STAGE 8: COMPUTE INHALATION AND CONTACT INFECTION RISK

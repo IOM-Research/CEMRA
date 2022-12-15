@@ -501,7 +501,6 @@ COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhig
     EairCough<-0
     EsurfCough<-0
   }
-  
   # Pathogens in BREATHING particles (onto surfaces)
   # 8 below is 8 minutes, to count to 1-100 10 times.
   nn<-round(Tmax)
@@ -534,7 +533,6 @@ COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhig
   } else{
   rateEsurface<-(EsurfCough)/gf
   }
-  
   #continuous emission into air and surfaces in far field (PFU per min)
   rateEair2<-((EairCough+EairTalk)*FFinfected)/gf
   if(SpeakontoSurf=="Y"){
@@ -581,37 +579,26 @@ COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhig
   
   # Create the binary variable for which transisition matrix to use in the matrix multiplication
   if(FFtime == 100){
-     
     choice<-sample(c(0,0,0,0,0,0,0,0,0,0),Tmax/dt, replace=TRUE)
   } else if(FFtime == 90){
-     
     choice<-sample(c(1,0,0,0,0,0,0,0,0,0),Tmax/dt, replace=TRUE)
   } else if(FFtime == 80){
-     
     choice<-sample(c(1,1,0,0,0,0,0,0,0,0),Tmax/dt, replace=TRUE)
   } else if(FFtime == 70){
-     
     choice<-sample(c(1,1,1,0,0,0,0,0,0,0),Tmax/dt, replace=TRUE)
   } else if(FFtime == 60){
-     
     choice<-sample(c(1,1,1,1,0,0,0,0,0,0),Tmax/dt, replace=TRUE)
   } else if(FFtime == 50){
-     
     choice<-sample(c(1,1,1,1,1,0,0,0,0,0),Tmax/dt, replace=TRUE)
   } else if(FFtime == 40){
-     
     choice<-sample(c(1,1,1,1,1,1,0,0,0,0),Tmax/dt, replace=TRUE)
   } else if(FFtime == 30){
-     
     choice<-sample(c(1,1,1,1,1,1,1,0,0,0),Tmax/dt, replace=TRUE)
   } else if(FFtime == 20){
-     
     choice<-sample(c(1,1,1,1,1,1,1,1,0,0),Tmax/dt, replace=TRUE)
   } else if(FFtime == 10){
-     
     choice<-sample(c(1,1,1,1,1,1,1,1,1,0),Tmax/dt, replace=TRUE)
   } else if(FFtime == 0){
-     
     choice<-sample(c(1,1,1,1,1,1,1,1,1,1),Tmax/dt, replace=TRUE)
   }
   
@@ -655,21 +642,32 @@ COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhig
   doseLUNGFFi<-sum(trackP[,4]*rateEair*dt)+
                    trackP[nsteps,4]*Nair
   
-  doseFACEi<-sum(trackP[,2]*rateEair*dt)+
+  doseFACEi<-#sum(trackP[,2]*rateEair*dt)+
              sum(trackP[,3]*rateEsurface*dt)+
-                 trackP[nsteps,2]*Nair+
-                 trackP[nsteps,3]*Nsurface	
+                 #trackP[nsteps,2]*Nair+
+                 trackP[nsteps,3]*Nsurface
+  doseSPRAYi<- sum(trackP[,2]*rateEair*dt)+
+              trackP[nsteps,2]*Nair
   
   # if there is more than 1 infected in the room then add total dose to the lung is from emission at each time step into far-field air, and surfaces
   # plus dose resulting from initial conditions in each of these three zones
   if(Infected>1){
-  doseLUNGi2<-sum(trackFF[,1]*rateEair2*dt)+trackFF[nsteps,1]*Nair2
-  doseLUNGFFi2<-sum(trackFF[,4]*rateEair2*dt)+trackFF[nsteps,4]*Nair2
-  doseFACEi2<-sum(trackFF[,2]*rateEair2*dt)+sum(trackFF[,3]*rateEsurface2*dt)+trackFF[nsteps,2]*Nair2+trackFF[nsteps,3]*Nsurface	
+  doseLUNGi2<-sum(trackFF[,1]*rateEair2*dt)+
+              trackFF[nsteps,1]*Nair2
+  doseLUNGFFi2<-sum(trackFF[,4]*rateEair2*dt)+
+                trackFF[nsteps,4]*Nair2
+  doseFACEi2<-#sum(trackFF[,2]*rateEair2*dt)+
+              sum(trackFF[,3]*rateEsurface2*dt)+
+              #trackFF[nsteps,2]*Nair2+
+              trackFF[nsteps,3]*Nsurface
+  
+  doseSPAYi2 <- sum(trackFF[,2]*rateEair2*dt)+
+                trackFF[nsteps,2]*Nair2
   # combine the dose recieved in the near field and the far field
   doseLUNGi<-doseLUNGi+doseLUNGi2
   doseLUNGFFi<-doseLUNGFFi + doseLUNGFFi2
   doseFACEi<-doseFACEi + doseFACEi2
+  doseSPRAYi<-doseSPRAYi + doseSPRAYi2
   }
   
   # apply the effect of respirator
@@ -742,7 +740,7 @@ COVIDinfectioncalculator<- function(ID,dt,DRk,ExtraExpVolStudy,Vts, gflow, gfhig
   #############################################################################################################################################
   
   # calculate conditional (on proportion of particles that deposit on the facial mucous membranes which reach receptors in the respiratory tract) probability 
-  CONDPROBINFSPRAY<-1-exp(-((doseSPRAY*pTARGET)*doseINSP)/DRk)
+  CONDPROBINFSPRAY<-1-exp(-(doseSPRAYi+((doseSPRAY*pTARGET)*doseINSP))/DRk)
   
   # calculate the unconditional probability (conditional multiplied by probability of HCW intercepting cough)
   UNCONDPROBINFSPRAY <- pSPRAY*CONDPROBINFSPRAY
